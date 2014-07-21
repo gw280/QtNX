@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <unistd.h>
 extern "C" {
 #include <sys/poll.h>
 }
