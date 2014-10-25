@@ -1,0 +1,51 @@
+## gitignore / C++.gitignore
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+## gitignore / Autotools.gitignore
+
+# http://www.gnu.org/software/automake
+Makefile.in
+
+# http://www.gnu.org/software/autoconf
+autom4te.cache
+aclocal.m4
+compile
+configure
+depcomp
+install-sh
+missing
+
+## Libtool, makefile and so on.
+libtool
+ltmain.sh
+stamp-h1
+.deps
+.libs
+Makefile
+config.*
+
+# Ignore emacs backup files
+*~
+
+## Explicit programs to ignore
+doc/html
+nxcl.pc
+nxcl/nxcl
+test/libtest
+test/notQttest
+test/nxcmd
+test/teeout
+test/*.log
+
