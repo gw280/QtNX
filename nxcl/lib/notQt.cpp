@@ -372,6 +372,13 @@ notQTemporaryFile::close (void)
 {
     if (this->f.is_open()) {
         this->f.close();
+        // Set permissions to be u+rw only, as this temporary file is used for ssh id files.
+        int modrtn = chmod (this->theFileName.c_str(), 0600);
+        if (modrtn) {
+            int theError = errno;
+            dbgln ("Attempt to chmod " << this->theFileName << " returned " << modrtn
+                   << ". errno: " << theError);
+        }
     }
 }
 
