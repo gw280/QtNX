@@ -289,5 +289,4 @@ void QtNXSettings::applyPressed()
     NXWriteXML writeData;
     writeData.setSessionData(config);
     writeData.write(QDir::homePath() + "/.qtnx/" + ui_sd.sessionName->text() + ".nxml");
-    // FIXME: Add something like: writeData.chmod(0600); to resolve CVE-2011-2916.
 }

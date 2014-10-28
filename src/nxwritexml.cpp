@@ -30,6 +30,7 @@ void NXWriteXML::write(QString fileName)
 {
     QFile file(fileName);
     file.open(QFile::WriteOnly);
+    file.setPermissions (QFile::ReadUser|QFile::WriteUser);
 
     QTextStream xml(&file);
     xml.setCodec("UTF-8");
