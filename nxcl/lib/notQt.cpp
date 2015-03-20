@@ -25,8 +25,8 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#include <sys/poll.h>	
-#include <sys/socket.h>	
+#include <sys/poll.h>
+#include <sys/socket.h>
 #include <signal.h>
 }
 #include <stdlib.h>
@@ -58,7 +58,7 @@ notQProcess::notQProcess () :
     parentFD(-1)
 {
     // Set up the polling structs
-    this->p = static_cast<struct pollfd*>(malloc (2*sizeof (struct pollfd)));	
+    this->p = static_cast<struct pollfd*>(malloc (2*sizeof (struct pollfd)));
 }
 
 // Destructor
@@ -76,7 +76,7 @@ notQProcess::~notQProcess ()
    // close (childErrToParent[WRITING_END]);
 }
 
-    void
+void
 notQProcess::writeIn (string& input)
 {
     write (this->parentToChild[WRITING_END], input.c_str(), input.size());
@@ -84,7 +84,7 @@ notQProcess::writeIn (string& input)
 
 // fork and exec a new process using execv, which takes stdin via a
 // fifo and returns output also via a fifo.
-    int
+int
 notQProcess::start (const string& program, const list<string>& args)
 {
     char** argarray;
@@ -104,7 +104,7 @@ notQProcess::start (const string& program, const list<string>& args)
 #else /* We need a socketpair for that to work */
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, parentToChild) == -1 || pipe(childErrToParent) == -1)
         return NOTQTPROCESS_FAILURE;
-    
+
     childToParent[READING_END]=dup(parentToChild[WRITING_END]);
     childToParent[WRITING_END]=dup(parentToChild[READING_END]);
 #endif
@@ -126,16 +126,16 @@ notQProcess::start (const string& program, const list<string>& args)
             // descriptors 0,1 or 2 and they will be used instead
             // of stdout, stderr and stdin.
             if ((dup2 (parentToChild[READING_END], STDIN)) == -1  ||
-                    (dup2 (childToParent[WRITING_END], STDOUT)) == -1 || 
+                    (dup2 (childToParent[WRITING_END], STDOUT)) == -1 ||
                     (dup2 (childErrToParent[WRITING_END], STDERR)) == -1) {
                 theError = errno;
                 cout << "ERROR! Couldn't get access to stdin/out/err! errno was " << theError << endl;
-                return NOTQTPROCESS_FAILURE;	
+                return NOTQTPROCESS_FAILURE;
             }
 
             // Allocate memory for the program arguments
             // 1+ to allow space for NULL terminating pointer
-            argarray = static_cast<char**>(malloc ((1+args.size()) * sizeof (char*))); 
+            argarray = static_cast<char**>(malloc ((1+args.size()) * sizeof (char*)));
             for (i=myargs.begin(); i!=myargs.end(); i++) {
                 argarray[j] = static_cast<char*>(malloc ( (1+(*i).size()) * sizeof (char) ));
                 snprintf (argarray[j++], 1+(*i).size(), "%s", (*i).c_str());
@@ -148,7 +148,7 @@ notQProcess::start (const string& program, const list<string>& args)
             execv (program.c_str(), argarray);
 
             // If process returns, error occurred
-            theError = errno; 
+            theError = errno;
             // This'll get picked up by parseResponse
             cout << "notQProcess error: " << this->pid << " crashed. errno:" << theError << endl;
 
@@ -182,7 +182,7 @@ notQProcess::start (const string& program, const list<string>& args)
 
 
 // If no pid after a while, return false.
-    bool
+bool
 notQProcess::waitForStarted (void)
 {
     unsigned int i=0;
@@ -204,7 +204,7 @@ notQProcess::waitForStarted (void)
 }
 
 // Send a TERM signal to the process.
-    void
+void
 notQProcess::terminate (void)
 {
     kill (this->pid, 15); // 15 is TERM
@@ -216,7 +216,7 @@ notQProcess::terminate (void)
 }
 
 // Check on this process
-    void
+void
 notQProcess::probeProcess (void)
 {
     // Has the process started?
@@ -287,7 +287,7 @@ notQProcess::probeProcess (void)
 }
 
 // Read stdout pipe, without blocking.
-    string
+string
 notQProcess::readAllStandardOutput (void)
 {
     string s;
@@ -311,7 +311,7 @@ notQProcess::readAllStandardOutput (void)
 }
 
 // Read stderr pipe without blocking
-    string
+string
 notQProcess::readAllStandardError (void)
 {
     string s;
@@ -352,37 +352,45 @@ notQTemporaryFile::~notQTemporaryFile ()
     this->close();
 }
 
-    void
+void
 notQTemporaryFile::open (void)
 {
+    dbgln ("Called");
     stringstream fn;
     fn << "/tmp/notQt" << time(NULL);
     this->theFileName = fn.str();
     this->f.open (this->theFileName.c_str(), ios::in|ios::out|ios::trunc);
 }
 
-    void
+void
 notQTemporaryFile::write (string input)
 {
     this->f << input;
 }
 
-    void
+void
 notQTemporaryFile::close (void)
 {
     if (this->f.is_open()) {
         this->f.close();
+        // Set permissions to be u+rw only, as this temporary file is used for ssh id files.
+        int modrtn = chmod (this->theFileName.c_str(), 0600);
+        if (modrtn) {
+            int theError = errno;
+            dbgln ("Attempt to chmod " << this->theFileName << " returned " << modrtn
+                   << ". errno: " << theError);
+        }
     }
 }
 
 // getter for fileName
-    string
+string
 notQTemporaryFile::fileName (void)
 {
     return this->theFileName;
 }
 
-    void
+void
 notQTemporaryFile::remove (void)
 {
     this->close();
@@ -406,14 +414,14 @@ notQtUtilities::~notQtUtilities ()
 {
 }
 
-    string
+string
 notQtUtilities::simplify (string& input)
 {
     string workingString;
     unsigned int i=0, start, end;
 
     // Find the first non-whitespace character.
-    while (input[i] != '\0' && 
+    while (input[i] != '\0' &&
             (input[i] == ' '  || input[i] == '\t' || input[i] == '\n' || input[i] == '\r')
             && i<input.size()) {
         i++;
@@ -438,7 +446,7 @@ notQtUtilities::simplify (string& input)
 
     // Now we replace internal white spaces in workingString with single spaces.
     for (i=workingString.size(); i>1; --i) {
-        if ( (workingString[i] == ' '   || workingString[i] == '\t'   
+        if ( (workingString[i] == ' '   || workingString[i] == '\t'
                     || workingString[i] == '\n' || workingString[i] == '\r')
                 &&
                 (workingString[i-1] == ' ' || workingString[i-1] == '\t'
@@ -447,7 +455,7 @@ notQtUtilities::simplify (string& input)
             workingString.erase(i,1);
 
         } else if ( (workingString[i] == '\t' ||  workingString[i] == '\n'
-                    || workingString[i] == '\r') 
+                    || workingString[i] == '\r')
                 &&
                 (workingString[i-1] != ' ' && workingString[i-1] != '\t'
                  &&  workingString[i-1] != '\n' && workingString[i-1] != '\r') ) {
@@ -460,7 +468,7 @@ notQtUtilities::simplify (string& input)
 }
 
 // split based on token ' '
-    void
+void
 notQtUtilities::splitString (string& line, char token, vector<string>& rtn)
 {
     rtn.clear();
@@ -476,7 +484,7 @@ notQtUtilities::splitString (string& line, char token, vector<string>& rtn)
     return;
 }
 
-    void
+void
 notQtUtilities::splitString (string& line, char token, list<string>& rtn)
 {
     rtn.clear();
@@ -494,7 +502,7 @@ notQtUtilities::splitString (string& line, char token, list<string>& rtn)
     return;
 }
 
-    int
+int
 notQtUtilities::ensureUnixNewlines (std::string& input)
 {
     int num = 0;

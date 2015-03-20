@@ -118,9 +118,9 @@ namespace nxcl {
 		pid_t getPid (void) { return this->pid; }
 		int getError (void) { return this->error; }
 		void setError (int e) { this->error = e; }
-		
-		int getParentFD() 
-		{ 
+
+		int getParentFD()
+		{
 			this->parentFD = this->parentToChild[1];
 			close(this->childToParent[0]);
 
@@ -137,7 +137,7 @@ namespace nxcl {
 		void setCallbacks (notQProcessCallbacks * cb) { this->callbacks = cb; }
 		//@}
 
-		/*! 
+		/*!
 		 * Slots
 		 */
 		//@{
@@ -194,7 +194,7 @@ namespace nxcl {
 		 */
 		notQProcessCallbacks * callbacks;
 
-		/*! 
+		/*!
 		 * old parent FD for comm with child
 		 */
 		int parentFD;

@@ -44,9 +44,9 @@ using namespace std;
 using namespace nxcl;
 
 NXSession::NXSession() :
-    devurand_fd(-1),
-    stage(HELLO_NXCLIENT),
     sessionDataSet(false),
+    stage(HELLO_NXCLIENT),
+    devurand_fd(-1),
     nxUsername("nouser"),
     nxPassword("nopass")
 {
